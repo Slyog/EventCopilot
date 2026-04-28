@@ -27,6 +27,8 @@ Frontend → n8n → LLM → Normalisierung → Validierung → Entscheidung →
 - **Retry** korrigiert ungültige Ausgaben einmal mit strengeren Regeln.
 - **Ausgabe** geht entweder als validierte Antwort an das Frontend oder in die manuelle Prüfung.
 
+Das `impact_level` klassifiziert die operative Relevanz der Änderung in niedrig, mittel oder hoch.
+
 ## Ablauf
 
 1. Event-Input trifft im Frontend ein.
@@ -52,6 +54,8 @@ LLM-Ausgaben gelten nicht automatisch als korrekt. Die Validierung erzwingt:
 
 Generische Formulierungen werden abgelehnt. Fehlende Reason-Nutzung wird abgelehnt. Platzhaltertexte werden abgelehnt. Der Retry-Layer arbeitet strenger als die erste Generierung und versucht genau eine gezielte Korrektur.
 
+Die finale Entscheidung basiert nicht auf dem LLM selbst, sondern auf deterministischen Validierungsregeln.
+
 ## Design-Entscheidung
 
 Der Prototyp trennt Generierung, Validierung und Freigabe bewusst voneinander. Das macht sichtbar, dass das LLM nur ein Teil des Systems ist. Die Qualität entsteht durch kontrollierte Verarbeitung, klare Regeln und eine manuelle Fallback-Stufe.
@@ -63,6 +67,8 @@ Integrationen sind bewusst deaktiviert, weil zuerst die Kommunikationsqualität 
 Die gezeigten Kanäle wie Slack, E-Mail, Event-App und Digital Signage sind Mock-Integrationen. Sie zeigen mögliche Ausspielungskanäle, senden aber keine Nachrichten.
 
 ## Demo-Workflow
+
+Der folgende Workflow zeigt die Verarbeitung einer Event-Änderung im n8n-System:
 
 ![Workflow](./demo%20workflow.jpg)
 
