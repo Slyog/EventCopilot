@@ -23,6 +23,8 @@ type CascadeResponse = {
   auswirkung?: unknown;
   naechste_schritte?: unknown;
   impact_level?: unknown;
+  _errors?: unknown;
+  _valid?: unknown;
 };
 
 type HistoryItem = FormState & {
@@ -207,6 +209,14 @@ function renderOneLineSummary(value: unknown) {
   return summary.replace(/\s+/g, " ").trim();
 }
 
+function getValidationErrors(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => renderValue(item)).filter(Boolean);
+}
+
 function getChangeTypeLabel(value: string) {
   return changeTypeOptions.find((option) => option.value === value)?.label ?? value;
 }
@@ -283,6 +293,7 @@ export default function Home() {
   const [response, setResponse] = useState<CascadeResponse | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [dispatchApprovals, setDispatchApprovals] = useState<
     Record<string, boolean>
@@ -328,6 +339,7 @@ export default function Home() {
     event.preventDefault();
     setIsLoading(true);
     setError("");
+    setValidationErrors([]);
 
     try {
       const result = await fetch(webhookUrl, {
@@ -363,6 +375,7 @@ export default function Home() {
         );
       }
 
+      setValidationErrors(getValidationErrors(data._errors));
       setResponse(data);
       setDispatchApprovals({});
       setHistory((current) =>
@@ -383,6 +396,7 @@ export default function Home() {
         ].slice(0, 5)
       );
     } catch {
+      setValidationErrors([]);
       setError("Die Änderung konnte nicht verarbeitet werden. Bitte erneut versuchen.");
     } finally {
       setIsLoading(false);
@@ -410,6 +424,7 @@ export default function Home() {
     }));
     setResponse(null);
     setError("");
+    setValidationErrors([]);
     setDispatchApprovals({});
     setSelectedScenarioLabel("");
   }
@@ -418,6 +433,7 @@ export default function Home() {
     setForm(preset);
     setResponse(null);
     setError("");
+    setValidationErrors([]);
     setDispatchApprovals({});
     setSelectedScenarioLabel(label);
   }
@@ -669,6 +685,19 @@ export default function Home() {
           </div>
 
           {error ? <p className="error output-error">{error}</p> : null}
+
+          {validationErrors.length > 0 ? (
+            <section className="review-box">
+              <h3>Manuelle Prüfung erforderlich</h3>
+              <ul>
+                {validationErrors.map((validationError, index) => (
+                  <li key={`${validationError}-${index}`}>
+                    {validationError}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <div className="card-grid">
             {responseCards.map((card) => (
