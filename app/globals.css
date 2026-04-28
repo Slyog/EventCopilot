@@ -71,6 +71,25 @@ textarea {
   padding: 4px 8px;
 }
 
+.github-link {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: #33414c;
+  display: inline-flex;
+  font-size: 0.86rem;
+  font-weight: 650;
+  gap: 6px;
+  padding: 5px 9px;
+  text-decoration: none;
+}
+
+.github-link:hover {
+  background: #fbfcfd;
+  border-color: #cfd7df;
+}
+
 h1,
 h2,
 h3,
@@ -505,6 +524,24 @@ button[type="button"]:disabled {
   color: #52616c;
 }
 
+.validation-badge {
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 750;
+  line-height: 1;
+  padding: 5px 8px;
+}
+
+.validation-ok {
+  background: #eaf8ef;
+  color: #17663a;
+}
+
+.validation-review {
+  background: #fff6df;
+  color: #8a5a00;
+}
+
 .workflow-status {
   color: var(--muted);
   font-size: 0.82rem;
@@ -536,6 +573,12 @@ button[type="button"]:disabled {
   line-height: 1.45;
   margin: 0;
   padding-left: 18px;
+}
+
+.review-box p {
+  font-size: 0.84rem;
+  line-height: 1.45;
+  margin: 0;
 }
 
 .card-grid {

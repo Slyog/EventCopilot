@@ -23,6 +23,7 @@ type CascadeResponse = {
   auswirkung?: unknown;
   naechste_schritte?: unknown;
   impact_level?: unknown;
+  status?: unknown;
   _errors?: unknown;
   _valid?: unknown;
 };
@@ -175,8 +176,10 @@ const responseCards: Array<{ key: keyof CascadeResponse; label: string }> = [
 
 const processingLogSteps = [
   "Änderung empfangen",
-  "Änderungstyp erkannt",
-  "Rollenkommunikation generiert",
+  "LLM-Kommunikation generiert",
+  "Validierung geprüft",
+  "Retry bei Bedarf ausgelöst",
+  "Manuelle Prüfung falls nötig",
   "Antwort an Oberfläche zurückgegeben"
 ];
 
@@ -304,6 +307,8 @@ export default function Home() {
   const showTimeFields = shouldIncludeTimeFields(form.change_type);
   const selectedScenario =
     demoPresets.find((preset) => preset.label === selectedScenarioLabel) ?? null;
+  const needsManualReview =
+    response?.status === "manual_review_required" || validationErrors.length > 0;
   const outputStatus = isLoading
     ? "Texte werden vorbereitet"
     : error
@@ -451,6 +456,14 @@ export default function Home() {
         <div className="intro-meta">
           <p className="eyebrow">Interview-Demo</p>
           <span className="demo-badge">Demo-Modus</span>
+          <a
+            className="github-link"
+            href="https://github.com/Slyog/EventCopilot"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ⭐ GitHub ansehen
+          </a>
         </div>
         <h1>Event Change Cascade Copilot</h1>
         <p>
@@ -676,6 +689,17 @@ export default function Home() {
                 >
                   {getImpactLabel(response?.impact_level)}
                 </span>
+                {response ? (
+                  <span
+                    className={
+                      needsManualReview
+                        ? "validation-badge validation-review"
+                        : "validation-badge validation-ok"
+                    }
+                  >
+                    {needsManualReview ? "manuelle Prüfung" : "validiert"}
+                  </span>
+                ) : null}
               </div>
               <p className="workflow-status">
                 Aus einer Änderung werden klare Nachrichten für jede Rolle.
@@ -686,16 +710,20 @@ export default function Home() {
 
           {error ? <p className="error output-error">{error}</p> : null}
 
-          {validationErrors.length > 0 ? (
+          {needsManualReview ? (
             <section className="review-box">
               <h3>Manuelle Prüfung erforderlich</h3>
-              <ul>
-                {validationErrors.map((validationError, index) => (
-                  <li key={`${validationError}-${index}`}>
-                    {validationError}
-                  </li>
-                ))}
-              </ul>
+              {validationErrors.length > 0 ? (
+                <ul>
+                  {validationErrors.map((validationError, index) => (
+                    <li key={`${validationError}-${index}`}>
+                      {validationError}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Status: manual_review_required</p>
+              )}
             </section>
           ) : null}
 
