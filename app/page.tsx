@@ -187,7 +187,7 @@ const integrationRows = [
 
 function renderValue(value: unknown) {
   if (value === undefined || value === null || value === "") {
-    return "Kein Wert zurückgegeben.";
+    return "Noch nichts vorbereitet.";
   }
 
   if (typeof value === "string") {
@@ -252,7 +252,7 @@ function getNextSteps(value: unknown) {
   }
 
   if (value === undefined || value === null || value === "") {
-    return ["Noch keine Antwort."];
+    return ["Noch nichts vorbereitet."];
   }
 
   return [renderValue(value)];
@@ -294,12 +294,12 @@ export default function Home() {
   const selectedScenario =
     demoPresets.find((preset) => preset.label === selectedScenarioLabel) ?? null;
   const outputStatus = isLoading
-    ? "Wird verarbeitet"
+    ? "Texte werden vorbereitet"
     : error
-      ? "Fehler"
+      ? "Konnte nicht vorbereitet werden"
       : response
-        ? "Verarbeitet"
-        : "Wartet auf Änderung";
+        ? "Texte vorbereitet"
+        : "Bereit für den nächsten Fall";
 
   const dispatchTargets = response
     ? [
@@ -438,17 +438,17 @@ export default function Home() {
         </div>
         <h1>Event Change Cascade Copilot</h1>
         <p>
-          Eine kurzfristige Event-Änderung erfassen und automatisch
-          rollenbasierte Kommunikation erzeugen.
+          Wenn sich vor Ort etwas ändert, erstellt der Copilot sofort klare
+          Texte für Teilnehmer, Speaker, Frontdesk und Ops.
         </p>
       </section>
 
       <section className="narrative-demo">
         <div className="narrative-copy">
-          <h2>Was passiert, wenn sich ein Event-Plan ändert?</h2>
+          <h2>Ein Plan ändert sich. Wer muss was wissen?</h2>
           <p>
-            Wähle eine reale Situation – und sieh, wie daraus klare
-            Kommunikation für Teilnehmer, Speaker, Frontdesk und Ops entsteht.
+            Wähle einen echten Event-Fall. Der Copilot macht daraus
+            verständliche Kommunikation für alle betroffenen Rollen.
           </p>
           <div className="scenario-buttons">
             {demoPresets.map((preset) => (
@@ -499,13 +499,13 @@ export default function Home() {
         <div className="input-column">
           <form className="panel form-panel" onSubmit={handleSubmit}>
             <div className="panel-header">
-              <h2>Änderung erfassen</h2>
+              <h2>Änderung prüfen</h2>
               <span>POST an n8n Webhook</span>
             </div>
 
             <p className="form-hint">
-              Details werden aus dem gewählten Demo-Fall übernommen und können
-              manuell angepasst werden.
+              Die Details kommen aus dem gewählten Fall. Du kannst sie vor dem
+              Erzeugen anpassen.
             </p>
 
             <div className="field-grid">
@@ -601,21 +601,21 @@ export default function Home() {
             </div>
 
             <button type="submit" disabled={isLoading}>
-              {isLoading ? "Wird verarbeitet..." : "Kommunikation erzeugen"}
+              {isLoading ? "Texte werden vorbereitet..." : "Texte vorbereiten"}
             </button>
           </form>
 
           <section className="panel payload-panel">
             <div className="panel-header">
               <h2>Event Payload</h2>
-              <span>Live JSON</span>
+              <span>Technische Ansicht dessen, was an n8n gesendet wird.</span>
             </div>
             <pre>{JSON.stringify(payload, null, 2)}</pre>
           </section>
 
           <section className="panel history-panel">
             <div className="panel-header">
-              <h2>Letzte Änderungen</h2>
+              <h2>Zuletzt vorbereitete Fälle</h2>
               <span>Letzte 5</span>
             </div>
 
@@ -652,7 +652,7 @@ export default function Home() {
           <div className="panel-header results-header">
             <div>
               <div className="response-title-row">
-                <h2>Strukturierte Kommunikation</h2>
+                <h2>Vorbereitete Kommunikation</h2>
                 <span
                   className={`impact-badge impact-${getImpactLabel(
                     response?.impact_level
@@ -662,7 +662,7 @@ export default function Home() {
                 </span>
               </div>
               <p className="workflow-status">
-                Workflow: n8n Webhook → LLM → JSON Response
+                Aus einer Änderung werden klare Nachrichten für jede Rolle.
               </p>
             </div>
             <span>{outputStatus}</span>
@@ -686,19 +686,22 @@ export default function Home() {
                   <pre>
                     {response
                       ? renderValue(response[card.key])
-                      : "Noch keine Antwort."}
+                      : "Noch nichts vorbereitet."}
                   </pre>
                 )}
               </article>
             ))}
           </div>
 
-          <section className="dispatch-preview" aria-label="Ausspielung">
+          <section
+            className="dispatch-preview"
+            aria-label="Freigabe & Ausspielung"
+          >
             <div className="dispatch-header">
-              <h3>Ausspielung</h3>
+              <h3>Freigabe & Ausspielung</h3>
               <p>
-                Keine automatische Ausspielung - Freigabe durch Event-Team
-                erforderlich.
+                Nichts wird automatisch verschickt. Das Event-Team gibt jede
+                Nachricht frei.
               </p>
               <p>Kommunikation wird erst nach Freigabe bereitgestellt.</p>
             </div>
@@ -750,8 +753,8 @@ export default function Home() {
             <div className="dispatch-header">
               <h3>Integrationen</h3>
               <p>
-                Integrationen sind bewusst nicht automatisch aktiv.
-                Kommunikation bleibt freigabepflichtig.
+                Diese Kanäle sind als mögliche Ausspielwege vorbereitet, aber
+                in der Demo nicht aktiv.
               </p>
             </div>
 
@@ -772,9 +775,9 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="processing-log" aria-label="Verarbeitungslog">
+          <section className="processing-log" aria-label="Ablauf im Hintergrund">
             <div className="processing-log-header">
-              <h3>Verarbeitungslog</h3>
+              <h3>Ablauf im Hintergrund</h3>
               <span
                 className={`impact-badge impact-${getImpactLabel(
                   response?.impact_level
