@@ -178,8 +178,8 @@ const processingLogSteps = [
   "Änderung empfangen",
   "LLM-Kommunikation generiert",
   "Validierung geprüft",
-  "Retry bei Bedarf ausgelöst",
-  "Manuelle Prüfung falls nötig",
+  "Retry geprüft",
+  "Manuelle Prüfung möglich",
   "Antwort an Oberfläche zurückgegeben"
 ];
 
@@ -316,7 +316,9 @@ export default function Home() {
     demoPresets.find((preset) => preset.label === selectedScenarioLabel) ?? null;
   const loadingMessage = loadingMessages[loadingMessageIndex];
   const needsManualReview =
-    response?.status === "manual_review_required" || validationErrors.length > 0;
+    response?.status === "manual_review_required" ||
+    response?._valid === false ||
+    validationErrors.length > 0;
   const outputStatus = isLoading
     ? loadingMessage
     : error
@@ -423,7 +425,9 @@ export default function Home() {
       );
     } catch {
       setValidationErrors([]);
-      setError("Die Änderung konnte nicht verarbeitet werden. Bitte erneut versuchen.");
+      setError(
+        "Fehler bei der Verarbeitung der Änderung. Bitte prüfen Sie die Verbindung oder den Webhook."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -772,16 +776,31 @@ export default function Home() {
           </div>
 
           <section
-            className="dispatch-preview"
+            className={
+              needsManualReview
+                ? "dispatch-preview dispatch-preview-blocked"
+                : "dispatch-preview"
+            }
             aria-label="Freigabe & Ausspielung"
           >
             <div className="dispatch-header">
-              <h3>Freigabe & Ausspielung</h3>
+              <div className="dispatch-title-row">
+                <h3>Freigabe & Ausspielung</h3>
+                {needsManualReview ? (
+                  <span className="not-ready-badge">nicht freigabebereit</span>
+                ) : null}
+              </div>
               <p>
                 Nichts wird automatisch verschickt. Das Event-Team gibt jede
                 Nachricht frei.
               </p>
               <p>Kommunikation wird erst nach Freigabe bereitgestellt.</p>
+              {needsManualReview ? (
+                <p className="manual-review-explanation">
+                  Ausgabe konnte nicht automatisch validiert werden. Manuelle
+                  Prüfung erforderlich.
+                </p>
+              ) : null}
             </div>
 
             {response ? (
@@ -799,20 +818,34 @@ export default function Home() {
                         <div className="dispatch-actions">
                           <span
                             className={
-                              isApproved
+                              needsManualReview
+                                ? "ready-badge ready-badge-blocked"
+                                : isApproved
                                 ? "ready-badge ready-badge-approved"
                                 : "ready-badge"
                             }
                           >
-                            {isApproved ? "freigegeben" : "bereit"}
+                            {needsManualReview
+                              ? "nicht freigabebereit"
+                              : isApproved
+                                ? "freigegeben"
+                                : "bereit"}
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => approveDispatchTarget(target.title)}
-                            disabled={isApproved}
-                          >
-                            {isApproved ? "Freigegeben" : "Freigeben"}
-                          </button>
+                          {needsManualReview ? (
+                            <button type="button" disabled>
+                              Freigabe nicht möglich
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                approveDispatchTarget(target.title)
+                              }
+                              disabled={isApproved}
+                            >
+                              {isApproved ? "Freigegeben" : "Freigeben"}
+                            </button>
+                          )}
                         </div>
                       </div>
                       <pre>{target.preview}</pre>

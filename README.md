@@ -72,9 +72,8 @@ Die Validierung erzwingt:
 - klare, operative Sprache
 - keine verbotenen Phrasen
 - keine generischen Formulierungen
-- keine erfundenen Daten
 - keine generischen Platzhaltertexte
-- keine erfundenen Zeiten, Orte oder Personen
+- keine erfundenen Daten (z. B. Zeiten, Orte, Personen)
 
 Generische Formulierungen werden abgelehnt.
 Fehlende Reason-Nutzung wird abgelehnt.
@@ -84,8 +83,6 @@ Platzhaltertexte werden abgelehnt.
 Der Retry-Layer arbeitet strenger als die erste Generierung und versucht genau eine gezielte Korrektur.
 
 Die finale Entscheidung basiert auf deterministischen Validierungsregeln.
-
-Die finale Entscheidung basiert nicht auf dem LLM selbst, sondern auf deterministischen Validierungsregeln.
 
 ## Design-Entscheidung
 
