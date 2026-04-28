@@ -1,98 +1,99 @@
 # Event Change Cascade Copilot
 
-## What this is
+## Überblick
 
-This project is a deterministic Event Operations Copilot that generates role-based communication for live event changes using an LLM, but with strict validation, retry logic, and manual fallback to ensure output quality.
+Der **Event Change Cascade Copilot** ist ein Prototyp für Event-Operations-Teams. Er verarbeitet kurzfristige Änderungen im Live-Betrieb und erzeugt daraus rollenbasierte Kommunikation für Teilnehmer, Speaker, Frontdesk und Ops.
+
+Das System nutzt ein LLM, vertraut dessen Ausgabe aber nicht blind. Jede Antwort wird normalisiert, validiert und erst danach im Frontend angezeigt. Ungültige Ausgaben laufen einmal durch einen gezielten Retry. Wenn auch dieser Versuch fehlschlägt, landet die Antwort in der manuellen Prüfung.
 
 ## Problem
 
-Kurzfristige Event-Aenderungen fuehren schnell zu uneinheitlicher Kommunikation. Teilnehmende brauchen klare Informationen, Speaker muessen anders gebrieft werden, Frontdesk und Ops benoetigen konkrete Handlungsanweisungen.
+Kurzfristige Änderungen erzeugen schnell uneinheitliche Kommunikation. Teilnehmer brauchen klare Orientierung, Speaker benötigen direkte Abstimmung, Frontdesk und Ops müssen sofort wissen, was vor Ort zu tun ist.
 
-Der Copilot wandelt eine strukturierte Aenderung in gepruefte Kommunikation fuer alle relevanten Rollen um.
+Der Copilot macht aus einer strukturierten Änderung einen prüfbaren Kommunikationsentwurf für alle relevanten Rollen.
 
-## System Architecture
+## Architektur
 
 ```text
-Frontend -> n8n Webhook -> LLM -> Validation Layer -> Retry Layer -> structured JSON -> Frontend
+Frontend → n8n → LLM → Normalisierung → Validierung → Entscheidung → Retry → Ausgabe
 ```
 
-- **Frontend** sendet eine strukturierte Event-Aenderung.
+- **Frontend** sendet eine strukturierte Event-Änderung an den n8n Webhook.
 - **n8n** orchestriert den Ablauf.
-- **LLM** generiert rollenbasierte Kommunikation.
-- **Validation Layer** prueft Schema, Reason-Nutzung, verbotene Phrasen und generische Formulierungen.
-- **Retry Layer** regeneriert fehlerhafte Outputs mit strengeren Regeln.
-- **Manual Review** greift als Fallback, wenn auch der Retry nicht valide ist.
+- **LLM** erzeugt rollenbasierte Kommunikation.
+- **Normalisierung** bringt die Antwort in ein einheitliches JSON-Format.
+- **Validierung** prüft Schema, Reason-Nutzung, verbotene Phrasen und generische Formulierungen.
+- **Entscheidung** bewertet, ob die Antwort verwendet werden kann.
+- **Retry** korrigiert ungültige Ausgaben einmal mit strengeren Regeln.
+- **Ausgabe** geht entweder als validierte Antwort an das Frontend oder in die manuelle Prüfung.
 
-## Processing Flow
+## Ablauf
 
-1. Event Input received
-2. LLM generates communication
-3. Output is normalized
-4. Validation checks quality and rules
-5. If invalid -> Retry with stricter prompt
-6. Retry is validated again
-7. If still invalid -> Manual Review required
-8. If valid -> Structured response returned
+1. Event-Input trifft im Frontend ein.
+2. Das Frontend sendet die Änderung an n8n.
+3. Das LLM generiert rollenbasierte Kommunikation.
+4. Die Antwort wird normalisiert.
+5. Die Validierung prüft Qualität, Regeln und JSON-Struktur.
+6. Bei ungültiger Antwort startet ein gezielter Retry.
+7. Die Retry-Antwort wird erneut validiert.
+8. Bei weiterhin ungültiger Antwort ist manuelle Prüfung erforderlich.
+9. Bei valider Antwort erhält das Frontend die strukturierte Kommunikation.
 
-## Validation Strategy
+## Validierungsstrategie
 
-LLM output is **not trusted by default**.
+LLM-Ausgaben gelten nicht automatisch als korrekt. Die Validierung erzwingt:
 
-Validation enforces:
+- korrektes JSON-Schema
+- konkrete Nutzung des angegebenen Grundes
+- klare, operative Sprache
+- keine verbotenen Phrasen
+- keine generischen Platzhalter
+- keine erfundenen Zeiten, Orte oder Personen
 
-- correctness
-- clarity
-- operational usability
-- concrete use of the provided reason
-- valid structured JSON
+Generische Formulierungen werden abgelehnt. Fehlende Reason-Nutzung wird abgelehnt. Platzhaltertexte werden abgelehnt. Der Retry-Layer arbeitet strenger als die erste Generierung und versucht genau eine gezielte Korrektur.
 
-Generic wording is rejected. Missing reason usage is rejected. Placeholder text is rejected. The retry layer applies stricter rules than the initial generation path.
+## Design-Entscheidung
 
-## Demo Workflow
+Der Prototyp trennt Generierung, Validierung und Freigabe bewusst voneinander. Das macht sichtbar, dass das LLM nur ein Teil des Systems ist. Die Qualität entsteht durch kontrollierte Verarbeitung, klare Regeln und eine manuelle Fallback-Stufe.
+
+## Warum keine direkte Ausspielung?
+
+Integrationen sind bewusst deaktiviert, weil zuerst die Kommunikationsqualität gesichert werden soll. Nachrichten werden nicht automatisch verschickt. Das Event-Team prüft und gibt jede vorbereitete Kommunikation frei.
+
+Die gezeigten Kanäle wie Slack, E-Mail, Event-App und Digital Signage sind Mock-Integrationen. Sie zeigen mögliche Ausspielungskanäle, senden aber keine Nachrichten.
+
+## Demo-Workflow
 
 ![Workflow](./demo%20workflow.jpg)
 
-## Core Features
+## Funktionsumfang
 
-- Narrative Demo-Faelle fuer realistische Event-Szenarien
+- Narrative Demo-Fälle für realistische Event-Szenarien
 - Editierbare Event-Details vor dem Absenden
 - Live-Vorschau des Event Payloads
-- Rollenbasierte Kommunikation fuer Teilnehmer, Speaker, Frontdesk und Ops
-- Dispatch Preview fuer moegliche Ausspielungskanaele
+- Rollenbasierte Kommunikation für Teilnehmer, Speaker, Frontdesk und Ops
+- Dispatch Preview für mögliche Ausspielungskanäle
 - Lokale Freigabe-Schicht pro Dispatch-Ziel
-- Mock-Integrationen fuer Slack, E-Mail, Event-App und Digital Signage
-- Verarbeitungslog mit Validation-, Retry- und Manual-Review-Signalen
-- Feed der zuletzt vorbereiteten Faelle
-- Loading-, Error- und Review-States fuer Interview-Debugging
+- Mock-Integrationen für Slack, E-Mail, Event-App und Digital Signage
+- Ablauf im Hintergrund mit Validierung, Retry und manueller Prüfung
+- Feed der zuletzt vorbereiteten Fälle
+- Loading-, Error- und Review-States für Interview-Debugging
 
-## Demo Mode
-
-This demo shows how real-time event changes can be transformed into structured communication with validation and fallback logic.
-
-## Why no automatic sending?
-
-Kommunikation wird bewusst nicht automatisch versendet. Jede generierte Nachricht muss durch das Event-Team geprueft und freigegeben werden. Integrationen sind in dieser Demo nur als Vorschau bzw. Registry dargestellt.
-
-## Run locally
+## Lokal starten
 
 ```bash
 npm install
 npm run dev
+npm run build
 ```
 
-Die App laeuft danach lokal unter:
+Die App läuft lokal unter:
 
 ```text
 http://localhost:3000
 ```
 
-Fuer einen Produktions-Build:
-
-```bash
-npm run build
-```
-
-## Webhook configuration
+## Webhook konfigurieren
 
 Die n8n Webhook URL wird in `.env.local` gesetzt:
 
@@ -102,17 +103,17 @@ NEXT_PUBLIC_N8N_WEBHOOK_URL=https://example.n8n.cloud/webhook/event-change
 
 Eine Vorlage liegt in `.env.local.example`.
 
-## 5-step demo script
+## Demo-Ablauf
 
-1. Oben einen Demo-Fall auswaehlen, z. B. **Speaker verspaetet**.
-2. Die uebernommenen Event-Details im Formular pruefen und bei Bedarf anpassen.
+1. Oben einen Demo-Fall auswählen, zum Beispiel **Speaker verspätet**.
+2. Die übernommenen Event-Details im Formular prüfen und bei Bedarf anpassen.
 3. Den **Event Payload** als strukturierte Eingabe in den Workflow zeigen.
-4. **Texte vorbereiten** klicken und die rollenbasierten Ergebnisse erklaeren.
-5. Dispatch Preview, Freigabe, Integrationen, Ablauf im Hintergrund und zuletzt vorbereitete Faelle zeigen.
+4. **Texte vorbereiten** klicken und die rollenbasierten Ergebnisse erklären.
+5. Dispatch Preview, Freigabe, Integrationen, Ablauf im Hintergrund und zuletzt vorbereitete Fälle zeigen.
 
-## Current limitations
+## Aktuelle Grenzen
 
-- Prototyp fuer Demo- und Interview-Zwecke
+- Prototyp für Demo- und Interview-Zwecke
 - Keine Persistenz, kein LocalStorage, keine Datenbank
 - n8n Workflow ist erforderlich und nicht Teil dieses Frontends
 - Integrationen sind gemockt und senden keine Nachrichten
