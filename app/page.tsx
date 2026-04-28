@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ?? "";
 const affectedGroups = ["attendees", "speaker", "frontdesk", "ops"];
@@ -183,6 +183,12 @@ const processingLogSteps = [
   "Antwort an Oberfläche zurückgegeben"
 ];
 
+const loadingMessages = [
+  "Verarbeite Änderung…",
+  "Generiere Kommunikation…",
+  "Prüfe Ausgabe…"
+];
+
 const integrationRows = [
   { name: "Slack", status: "geplant", purpose: "Team-Updates" },
   { name: "E-Mail", status: "geplant", purpose: "freigegebene Teilnehmerinfos" },
@@ -298,6 +304,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [dispatchApprovals, setDispatchApprovals] = useState<
     Record<string, boolean>
   >({});
@@ -307,10 +314,11 @@ export default function Home() {
   const showTimeFields = shouldIncludeTimeFields(form.change_type);
   const selectedScenario =
     demoPresets.find((preset) => preset.label === selectedScenarioLabel) ?? null;
+  const loadingMessage = loadingMessages[loadingMessageIndex];
   const needsManualReview =
     response?.status === "manual_review_required" || validationErrors.length > 0;
   const outputStatus = isLoading
-    ? "Texte werden vorbereitet"
+    ? loadingMessage
     : error
       ? "Konnte nicht vorbereitet werden"
       : response
@@ -339,6 +347,19 @@ export default function Home() {
         }
       ]
     : [];
+
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadingMessageIndex(0);
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setLoadingMessageIndex((current) => (current + 1) % loadingMessages.length);
+    }, 1200);
+
+    return () => window.clearInterval(intervalId);
+  }, [isLoading]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -630,7 +651,7 @@ export default function Home() {
             </div>
 
             <button type="submit" disabled={isLoading}>
-              {isLoading ? "Texte werden vorbereitet..." : "Texte vorbereiten"}
+              {isLoading ? loadingMessage : "Texte vorbereiten"}
             </button>
           </form>
 
