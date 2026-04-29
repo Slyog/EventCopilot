@@ -88,7 +88,7 @@ Die finale Entscheidung basiert auf deterministischen Validierungsregeln.
 **Erste Generierung:**
 - zu generisch formuliert  
 - Reason nicht konkret genutzt  
-- nächste Schritte unklar  
+- nächste Schritte unklar
 
 **Validierung:**
 - erkennt fehlende Reason-Nutzung  
@@ -167,7 +167,7 @@ Eine Vorlage liegt in .env.local.example.
 
 ## Aktuelle Grenzen
 
-- Prototyp für Demo- und Interview
+- Prototyp für Demo- und Interview-Zwecke
 - Keine Persistenz, kein LocalStorage, keine Datenbank
 - n8n Workflow ist erforderlich und nicht Teil dieses Frontends
 - Integrationen sind gemockt und senden keine Nachrichten
