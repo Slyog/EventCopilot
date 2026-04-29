@@ -81,6 +81,40 @@ Der Retry-Layer arbeitet strenger als die erste Generierung und versucht genau e
 
 Die finale Entscheidung basiert auf deterministischen Validierungsregeln.
 
+## Beispiel: Systemverhalten
+
+**Szenario:** Speaker verspätet sich
+
+**Erste Generierung:**
+
+- zu generisch formuliert  
+
+- Reason nicht konkret genutzt  
+
+- nächste Schritte unklar  
+
+**Validierung:**
+
+- erkennt fehlende Reason-Nutzung  
+
+- erkennt generische Formulierungen  
+
+- lehnt Ausgabe ab  
+
+**Retry:**
+
+- erhält konkrete Fehler  
+
+- erzwingt präzisere Formulierung  
+
+**Ergebnis:**
+
+- Reason wird konkret verwendet  
+
+- klare Zeitangabe enthalten  
+
+- nächste Schritte sind operativ nutzbar 
+
 ## Design-Entscheidung
 
 Der Prototyp trennt Generierung, Validierung und Freigabe bewusst voneinander.  
@@ -125,16 +159,16 @@ npm run dev
 npm run build
 ```
 Die App läuft lokal unter:
-http://localhost:3000
+`http://localhost:3000`
 
-Webhook konfigurieren
+## Webhook konfigurieren
 
 Die n8n Webhook URL wird in .env.local gesetzt:
-NEXT_PUBLIC_N8N_WEBHOOK_URL=https://example.n8n.cloud/webhook/event-change
+`NEXT_PUBLIC_N8N_WEBHOOK_URL=https://example.n8n.cloud/webhook/event-change`
 
 Eine Vorlage liegt in .env.local.example.
 
-Demo-Ablauf
+## Demo-Ablauf
 
 1. Oben einen Demo-Fall auswählen, zum Beispiel Speaker verspätet
 2. Die übernommenen Event-Details im Formular prüfen und bei Bedarf anpassen
@@ -142,7 +176,7 @@ Demo-Ablauf
 4. Texte vorbereiten klicken und die rollenbasierten Ergebnisse erklären
 5. Dispatch Preview, Freigabe, Integrationen, Ablauf im Hintergrund und zuletzt vorbereitete Fälle zeigen
 
-Aktuelle Grenzen
+## Aktuelle Grenzen
 
 * Prototyp für Demo- und Interview-Zwecke
 * Keine Persistenz, kein LocalStorage, keine Datenbank
