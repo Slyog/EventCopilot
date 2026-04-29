@@ -86,33 +86,22 @@ Die finale Entscheidung basiert auf deterministischen Validierungsregeln.
 **Szenario:** Speaker verspätet sich
 
 **Erste Generierung:**
-
 - zu generisch formuliert  
-
 - Reason nicht konkret genutzt  
-
 - nächste Schritte unklar  
 
 **Validierung:**
-
 - erkennt fehlende Reason-Nutzung  
-
 - erkennt generische Formulierungen  
-
 - lehnt Ausgabe ab  
 
 **Retry:**
-
 - erhält konkrete Fehler  
-
 - erzwingt präzisere Formulierung  
 
 **Ergebnis:**
-
 - Reason wird konkret verwendet  
-
 - klare Zeitangabe enthalten  
-
 - nächste Schritte sind operativ nutzbar 
 
 ## Design-Entscheidung
@@ -163,7 +152,7 @@ Die App läuft lokal unter:
 
 ## Webhook konfigurieren
 
-Die n8n Webhook URL wird in .env.local gesetzt:
+Die n8n Webhook URL wird in `.env.local` gesetzt:
 `NEXT_PUBLIC_N8N_WEBHOOK_URL=https://example.n8n.cloud/webhook/event-change`
 
 Eine Vorlage liegt in .env.local.example.
@@ -178,8 +167,8 @@ Eine Vorlage liegt in .env.local.example.
 
 ## Aktuelle Grenzen
 
-* Prototyp für Demo- und Interview-Zwecke
-* Keine Persistenz, kein LocalStorage, keine Datenbank
-* n8n Workflow ist erforderlich und nicht Teil dieses Frontends
-* Integrationen sind gemockt und senden keine Nachrichten
-* Freigaben sind nur lokaler UI-State
+- Prototyp für Demo- und Interview
+- Keine Persistenz, kein LocalStorage, keine Datenbank
+- n8n Workflow ist erforderlich und nicht Teil dieses Frontends
+- Integrationen sind gemockt und senden keine Nachrichten
+- Freigaben sind nur lokaler UI-State
